@@ -1,9 +1,9 @@
 [project]
 name = "Waki"
 version = "0.1.0"
-description = "The uncompromising content charset detector"
+description = "Sniffer for legacy internet bytes."
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = []
 
 [dependency-groups]
