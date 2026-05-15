@@ -16,8 +16,10 @@ Waki takes messy legacy data and runs statistical heuristics on it to figure out
 ## Installation
 
 ```bash
-pip install waki
+pip install git+https://github.com/Ristellise/Waki.git
 ```
+
+Waki is only distributed on github as of now. pypi might come later.
 
 Due to differing opinions on correct charset detectors, Waki does not install backends by default. Install your preferred engine alongside Waki:
 
