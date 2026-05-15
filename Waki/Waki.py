@@ -124,17 +124,6 @@ class Waki:
             view, header_mime, http_params, commentary
         )
 
-        # Content filtering
-        if not resolved_mime.startswith(
-            (
-                "text/",
-                "application/xml",
-                "application/atom",
-                "application/rss",
-                "message/",
-            )
-        ):
-            return None, True
 
         suggested_encoding = self._normalise_encoding(
             http_params.get("charset") or html_enc
