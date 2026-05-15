@@ -70,11 +70,30 @@ from waki import HTMLSniffer, Backend
 
 web_sniffer = HTMLSniffer(backend=Backend.CCHARDET)
 
-http_header = 'text/html; charset="iso-8895-1"' # The famous typo
+http_header = 'text/html; charset="iso-8895-1"' # A Minor Spelling Mistake
 html_bytes = b'<html><head><meta charset="utf-8"></head><body>Fran\xc3\xa7ois</body></html>'
 
 # HTMLSniffer weighs the HTTP header against the internal meta tag
 text, encoding, logs = web_sniffer.sniff_content(http_header, html_bytes)
+```
+
+## Extending Waki
+
+Waki exposes internal hooks for custom payload validation and encoding extraction. Subclass `Waki` and override these hooks to inject domain-specific logic. `HTMLSniffer` is built entirely on this hook system.
+
+Available hooks:
+* `_pre_check(self, content: memoryview) -> Optional[str]`: Evaluates payloads before processing. Return a string message to reject and discard the payload, or `None` to proceed.
+* `_get_contextual_hints(self, view: memoryview, header_mime: str, http_params: dict, commentary: StringIO) -> Tuple[str, str, Optional[str]]`: Extracts internal hints from the raw bytes. Returns a tuple of `(resolved_mime, extracted_encoding, language_hint)`.
+
+```python
+from waki import Waki
+from typing import Optional
+
+class CustomProtocolSniffer(Waki):
+    def _pre_check(self, content: memoryview) -> Optional[str]:
+        if b"MALICIOUS_SIGNATURE" in content[:1024].tobytes():
+            return "Rejected: Contains blocked signature"
+        return None
 ```
 
 ## Architecture Details
@@ -84,3 +103,7 @@ Waki extracts a 64KB sample from the provided bytes and runs it through the chos
 If the backend guess and the header disagree, Waki decodes the sample using the human-provided header and counts the exact ratio of Unicode replacement characters (`\ufffd`). If the failure ratio is under 0.25%, Waki trusts the header. If the failure ratio is high, Waki throws the header out and falls back to the backend's statistical guess. 
 
 Ultimate fallback defaults to `utf-8`.
+
+## License
+
+Licensed under the WTFPL (Do What the Fuck You Want to Public License). See `LICENSE` for details.
